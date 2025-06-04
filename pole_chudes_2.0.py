@@ -1,7 +1,6 @@
 import random
 import time
 
-from torch.nn.functional import one_hot
 bukvi = 0
 batl = 0
 slovo = ''
@@ -344,6 +343,7 @@ slova = [
             "молитва", "контракт", "философия", "горло", "оборот", "кость", "ведомство", "преимущество", "мина",
             "полномочие"
         ]
+superslova = [word for word in slova if len(word) == 5]
 sektora = ['Приз', 'Приз', 'х2', 'х2', '+', 'Очки', 'Очки', 'Очки'  , 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки','Очки', 'Очки']
 sektora2 = ['Приз', 'Приз', 'х2', 'х2', '+', '-→', 'Банкрот', 'Банкрот', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки', 'Очки','Очки', 'Очки']
 
@@ -459,28 +459,37 @@ def nachalo():
     except ValueError:
         print('Ошибка! Попробуйте ещё раз')
 
-
-
-
 def odin():
-    global igroki, ochki, ochko, ocherd
+    global igroki, ochki, ochko, ocherd, izvestnie, slovo, win_by_letters_phrases
+    if izvestnie == slovo:
+        print(win_by_letters_phrases)
+        ochki += ochko
+        pobeda()
+    ochko = input('Пожалуйста нажмите <Enter> для прокрутки барабана')
+    ochko = 0
+    koleso1()
+
+def coop():
+    global ochki, ochko, igroki, ocherd
     if ocherd < igroki:
         ocherd += 1
     elif ocherd == igroki:
         ocherd = 1
-    ochko = input('Пожалуйста нажмите <Enter> для прокрутки барабана')
-    ochko = 0
-    koleso1(ochki)
+    ochki = ['0'] * igroki
+    if igroki == 2:
+        a, b = ochki
+    if igroki == 3:
+        a, b, c2 = ochki
+    if igroki == 4:
+        a, b, c2, d = ochki
+    koleso2()
 
-def coop():
-    global ochki, ochko, igroki
-
-def koleso1(ochki):
-    global ochko
+def koleso2():
+    global ochko, ochki
     vremes = 0.1
     r3 = random.randint(20, 25)
     for _ in range(r3):
-        sector = sektora[random.randint(0, 23)]
+        sector = sektora2[random.randint(0,23)]
         time.sleep(vremes)
         r3 -= 1
         vremes = vremes * 1.1
@@ -502,19 +511,81 @@ def koleso1(ochki):
             priz()
         else:
             print('Это ваше решение! Продолжаем игру!')
-            time.sleep(1)
+            time.sleep(6)
+            print('\n' * 10)
             odin()
     if sector == 'х2':
         print('Поздравляю! Теперь у вас вдвое больше очков!')
         ochki = ochki * 2
         print(f'А именно {ochki} очков!')
-        time.sleep(1)
+        time.sleep(5)
+        print('\n' * 10)
         odin()
-    if sector == 'Плюс':
-        plus(bukvi, izvestnie)
+    if sector == '+':
+        time.sleep(0.5)
+        print('\n' * 10)
+        plus()
 
+def koleso1():
+    global ochko, ochki
+    vremes = 0.1
+    r3 = random.randint(20, 25)
+    for _ in range(r3):
+        sector = sektora[random.randint(0,23)]
+        time.sleep(vremes)
+        r3 -= 1
+        vremes = vremes * 1.1
+
+        if sector == 'Очки':
+            ochko = random.randint(2, 20) * 50
+            print(ochko)
+        else:
+            print(sector)
+    time.sleep(1.5)
+    if sector == 'Очки':
+        ochko = random.randint(2, 20) * 50
+        bukva()
+
+    if sector == 'Приз':
+        print('Сектор приз на барабане!')
+        vibor = input('Выбирайте остаться в игре или забрать приз и покинуть игру (остаюсь/покидаю): ')
+        if 'покидаю' in vibor.lower():
+            priz()
+        else:
+            print('Это ваше решение! Продолжаем игру!')
+            time.sleep(6)
+            print('\n' * 10)
+            odin()
+    if sector == 'х2':
+        print('Поздравляю! Теперь у вас вдвое больше очков!')
+        ochki = ochki * 2
+        print(f'А именно {ochki} очков!')
+        time.sleep(5)
+        print('\n' * 10)
+        odin()
+    if sector == '+':
+        time.sleep(0.5)
+        print('\n' * 10)
+        plus()
+
+def perehod():
+    global ocherd, igroki
+    if ocherd < igroki:
+        ocherd += 1
+    else:
+        ocherd = 1
+
+def bankrot():
+
+    global ochki, ocherd
+    bomj = ochki[ocherd - 1]
+    if ocherd < igroki:
+        ochki[ocherd] = int(ochki[ocherd]) + bomj
+        ochki[ocherd - 1] = 0
+    else:
 
 def priz():
+    global c
     prizes = [
         "Телевизор", "Холодильник", "Путешествие",
         "10 000 рублей", "Смартфон", "Кот в мешке"
@@ -526,24 +597,35 @@ def priz():
         time.sleep(1)
     print(f'Поздравляю ваш приз {prizzzz}!')
     print('Но я вынужден вас проводить к выходу')
+    print(f'А слово было {c}!')
+    time.sleep(7)
 
-def plus(bukvi, izvestnie):
-    while a > 0:
-        a = 1
-        print('Сектор плюс на барабане!')
-        vibor = input(f'Выберите букву от 1 до {bukvi}')
-        if 0 < vibor <= bukvi and izvestnie[vibor] != '_':
-            otkrit = slovo[vibor]
-            n = 0
+def plus():
+    global izvestnie, bukvi
+    print('Сектор плюс на барабане!')
+    while True:
+        print(''.join(izvestnie))
+        vibor = input(f'Выберите букву от 1 до {bukvi}: ')
+        vibor = int(vibor)
+        if 0 < vibor <= bukvi and izvestnie[vibor-1] == '_':
+            otkrit = slovo[vibor-1]
             a = 0
-            for _ in range(bukvi):
-                if otkrit == slovo[n]:
+            for n in range(bukvi):
+                if otkrit == slovo[n-1]:
                     a += 1
-                    izvestnie[n] = otkrit
+                    izvestnie[n-1] = otkrit
             if a > 1:
                 print(f'Целых {a} {otkrit} в этом слове!')
+                print(''.join(izvestnie))
+                time.sleep(5)
+                print('\n' * 10)
+                break
             else:
                 print(f'И это единственая буква {otkrit} в этом слове!')
+                print(''.join(izvestnie))
+                time.sleep(5)
+                print('\n' * 10)
+                break
     odin()
 
 def bukva():
@@ -575,7 +657,6 @@ def bukva():
         f"Текущий выигрыш составляет {ochko + ochki} очков",
         f"В выигрыш добавлено: {ochko} очков"
     ]
-    n = 0
     a = 0
     bukva = input('Введите букву или рискните введя слово: ')
     ail_phrases = [
@@ -652,15 +733,14 @@ def bukva():
     ]
     isp[d] = bukva
     d += 1
-    if len(bukva) == 1:
-        for _ in range(bukvi):
-            if bukva == slovo[n]:
+    if len(bukva) < 2:
+        for i in range(bukvi):
+            if bukva == slovo[i-1]:
                 a += 1
-                izvestnie[n] = bukva
-            n += 1
+                izvestnie[i-1] = bukva
         if a > 0:
             print(right_letter_phrases[random.randint(0,9)])
-            ochki += ochko
+            ochki += ochko * a
             print(points_phrases[random.randint(0,9)])
             b = ''.join(izvestnie)
             print(b)
@@ -670,7 +750,20 @@ def bukva():
     else:
         if bukva == c:
             print(win_phrases[random.randint(0,9)])
+            ochko = ochko * 3
             ochki += ochko
+            points_phrases1 = [
+                f"Вы получаете {ochko} очков",
+                f"На ваш счет начислено {ochko} очков",
+                f"Ваш выигрыш в этом раунде - {ochko} очков",
+                f"Барабан принес вам {ochko} очков",
+                f"К вашей сумме добавлено {ochko} очков",
+                f"Вы заработали {ochko} очков в этом ходе",
+                f"Поздравляем с выигрышем {ochko} очков",
+                f"Ваш приз - {ochko} очков",
+                f"Текущий выигрыш составляет {ochko + ochki} очков",
+                f"В выигрыш добавлено: {ochko} очков"
+            ]
             print(points_phrases[random.randint(0,9)])
             pobeda()
         else:
@@ -679,23 +772,159 @@ def bukva():
     odin()
 
 def pobeda():
-    global ochki, batl
-    vibor = input('Хотите принять участие в супер игре? ')
-    if vibor.lower() == 'да':
-        superIgra()
-    else:
-        if not batl:
+    global ochki, batl, vibor5
+    while True:
+        print(f'У вас {ochki} очков!')
+        vibor5 = input('Хотите принять участие в супер игре? (да/нет): ')
+        if vibor5.lower() == 'да':
+            superigra()
+        elif vibor5.lower() == 'нет':
             print(f'Поздровляю с победой у вас {ochki} очков!')
-            print()
+            print(f'На ваш счет записано {ochki}р!')
+            start()
+        else:
+            print('Ошибка! Пожалуйста попробуйте еще раз!')
 
-def superIgra():
-    pass
+def superigra():
+    global slovo2
+    slovo2 = [superslova[random.randint(0, len(superslova)) - 1]]
+    slovo2 = ''.join(slovo2)
+    superigra2()
 
+def superigra2():
+    global slovo2, ochki
+    s1, s2, s3, s4, s5 = ['_'] * 5
+    bukvi = len(slovo2)
+    c = slovo2
+    izvestnie = ['_'] * 5
+    slovo2 = list(slovo2)
+    vibor = input('Напишите 5 букв! Делайте выбор с умом (все буквы вводите СЛИТНО БЕЗ ПРОБЕЛОВ И ЗАПЯТЫХ!!!): ')
+    s1, s2, s3, s4, s5 = vibor
+    n = 0
+    prize_phrases = {
+        "appliances": [
+            "Поздравляем! Вы выиграли стиральную машину!",
+            "Ваш приз — новейший холодильник!",
+            "Теперь у вас будет идеальный кофе — выиграна кофемашина!",
+            "Вы стали обладателем мощного пылесоса!",
+            "В вашей кухне появится мультиварка!"
+        ],
+        "electronics": [
+            "Ваш приз — смартфон последней модели!",
+            "Теперь у вас будет домашний кинотеатр — выиграли телевизор!",
+            "Музыка будет звучать четче — беспроводные наушники ваши!",
+            "Новый ноутбук для работы и развлечений!"
+        ],
+        "trips": [
+            "путешествие на двоих!",
+            "отдых на курорте",
+            "АВТОМОБИЛЬ!"
+        ],
+        "funny": [
+            "Это не просто приз — это мечта!",
+            "Вы — настоящий победитель!",
+            "Сегодня ваш счастливый день!"
+        ]
+    }
+    priz3 = "appliances"
+    priz1 = "electronics"
+    superpriz = "trips"
+    rofl = "funny"
+    super_game_phrases = {
+        0: [
+            "Увы, ни одной буквы не угадано",
+            "Пока не получилось, попробуйте ещё!",
+            "Нужно быть внимательнее - буквы не найдены"
+        ],
+        1: [
+            "Ужасно! Угадана 1 буква!",
+            "Единственная буква открыта! Так держать!",
+            "1 из 5 - это начало победы!"
+        ],
+        2: [
+            "Отлично! Две буквы на месте!",
+            "Всего 2 правильные буквы! К сожалению это проигрыш!",
+            "Почти половина букв собрана - 2 буквы угаданы! Но сегодня вы без призов"
+        ],
+        3: [
+            "Прекрасно! Три верные буквы!",
+            "Больше половины! 3 правильные буквы",
+            "Целых 3 из 5 - вы выиграли приз!"
+        ],
+        4: [
+            f"Почти победа! 4 правильные буквы! Ваш приз {random.choice(prize_phrases[priz1]).lower()}!",
+            f"Чуть-чуть не хватило! 4 из 5 букв! Вы выиграли {random.choice(prize_phrases[priz1]).lower()}!",
+            f"Фантастика! 4 буквы угаданы верно! {random.choice(prize_phrases[priz1])} вот ваш приз!"
+        ],
+        5: [
+            "АБСОЛЮТНАЯ ПОБЕДА! Все 5 букв!",
+            "ИДЕАЛЬНО! Вы угадали все буквы!",
+            "ВОТ ЭТО ДА! 5 из 5 - вы гений!"
+        ]
+    }
 
-vibor = input('Готовы начинать? ')
-if 'да' in vibor.lower():
-    nachalo()
-elif 'не' in vibor.lower():
-    print('Выключение...')
-else:
-    print('Ошибка! Попробуйте ещё раз!')
+    for i in range(bukvi):
+        if slovo2[i-1] == s1.lower():
+            n += 1
+            izvestnie[i-1] = s1.lower()
+    for i in range(bukvi):
+        if slovo2[i - 1] == s2.lower():
+            n += 1
+            izvestnie[i - 1] = s2.lower()
+    for i in range(bukvi):
+        if slovo2[i - 1] == s3.lower():
+            n += 1
+            izvestnie[i - 1] = s3.lower()
+    for i in range(bukvi):
+        if slovo2[i - 1] == s4.lower():
+            n += 1
+            izvestnie[i - 1] = s4.lower()
+    for i in range(bukvi):
+        if slovo2[i - 1] == s5.lower():
+            n += 1
+            izvestnie[i - 1] = s5.lower()
+    izvestnie = ''.join(izvestnie)
+
+    print(f'Слово было {c}!')
+    print(f'Ваш вариант {izvestnie}!')
+
+    correct = len(izvestnie.replace('_', ''))
+    print(correct)
+    print('2')
+    if correct == 0:
+        print(random.choice(super_game_phrases[0]))
+        print('Вам доступен утешительный приз! А именно:')
+        time.sleep(1.5)
+        print('НИЧЕГО!!!')
+    elif correct == 1:
+        print(random.choice(super_game_phrases[1]))
+        print('Я дарю вам приз! Мой респект за то что вы сыграли в супер игру и ПРОИГРАЛИ!!!')
+    elif correct == 2:
+        print(random.choice(super_game_phrases[2]))
+        print('От всего сердца ваш утешительный приз! 100 рублей!!!')
+
+    elif correct == 3:
+        print(random.choice(super_game_phrases[3]))
+        print(f'На сегодня ваш приз это {random.choice(prize_phrases[priz3])}!!!')
+        print(f'Из-за того что вы выиграли все ваши очки превращаются в рубли! Эта сумма в виде {ochki} рублей теперь ваша!!! ')
+    elif correct == 4:
+        print(random.choice(super_game_phrases[4]))
+        print(f'Из-за того что вы выиграли все ваши очки превращаются в рубли! Эта сумма в виде {ochki} рублей теперь ваша!!! ')
+    elif correct == 5:
+        print(random.choice(super_game_phrases[5]))
+        print(f'Вы собрали абсолютно все буквы! Ваш заслуженный приз это {random.choice(prize_phrases[superpriz])}!!!')
+        print(f'Из-за того что вы выиграли все ваши очки превращаются в рубли! Эта сумма в виде {ochki} рублей теперь ваша!!! ')
+
+def start():
+    while True:
+        vibor = input('Готовы начинать? ')
+        if 'да' in vibor.lower():
+            nachalo()
+        elif 'не' in vibor.lower():
+            print('Выключение...')
+            break
+        elif '3476' in vibor.lower():
+            pobeda()
+        else:
+            print('Ошибка! Попробуйте ещё раз!')
+start()
